@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师评价系统</title>
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <link href="css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="css/common.min.css" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <!--<div class="col-sm-4">-->
+                <!--<div class="contact-box2">-->
+                <!--<a href="profile.html">-->
+                    <!--<div class="col-sm-4">-->
+                        <!--<div class="text-center">-->
+                            <!--<img alt="image" class="img-circle m-t-xs img-responsive" src="img/userImag/a2.jpg">-->
+                            <!--<div class="m-t-xs font-bold">CTO</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="col-sm-8">-->
+                        <!--<h3><strong>奔波儿灞</strong></h3>-->
+                        <!--<p><i class="fa fa-map-marker"></i> 甘肃·兰州</p>-->
+                        <!--<address style="margin-bottom:10px">-->
+                            <!--<strong>课程:</strong>《java程序设计》<br>-->
+                            <!--E-mail:xxx@baidu.com<br>-->
+                            <!--<abbr title="Phone">Tel:</abbr> (123) 456-7890-->
+                        <!--</address>-->
+                        <!--<div class="ibox2 float-e-margins">-->
+                            <!--<p>-->
+                                <!--<a class="btn btn-danger btn-rounded btn-outline" href="buttons.html#">待评价</a>-->
+                                <!--&nbsp;-->
+                                <!--<a class="btn btn-success btn-rounded" style="color:#FFF" href="buttons.html#">留言</a>-->
+                            <!--</p>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="clearfix"></div>-->
+                <!--</a>-->
+            <!--</div>-->
+            <!--</div>-->
+        </div>
+    </div>
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/content.min.js?v=1.0.0"></script>
+    <script src="js/common.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+    <script>
+        // 初始化页面
+        function initHtml(obj, i){
+            var html = "";
+            html += '<div class="col-sm-4">' +
+                        '<div class="contact-box2">' +
+                             '<a href="javascript:void(0)" onclick="saveAndTurn('+ i +', 2);return false;">' +
+                                '<div class="col-sm-4">' +
+                                    '<div class="text-center">' +
+                                    '<img alt="image" class="img-circle m-t-xs img-responsive" src="'+obj.imgUrl+'">' +
+                                    '<div class="m-t-xs font-bold">'+ obj.userName +'</div>' +
+                                    '</div>' +
+                                '</div>'+
+                                '<div class="col-sm-8">' +
+                                    '<h3><strong>'+ obj.nikeName +'</strong></h3>' +
+                                    '<p><i class="fa fa-map-marker"></i> 湖南·常德</p>' +
+                                    '<address style="margin-bottom:10px">' +
+                                    '<strong>课程:</strong>《'+ obj.courseName+'》<br>' +
+                                    '<strong>E-mail:</strong>'+obj.email+'<br>' +
+                                    '<abbr title="Phone"><strong>Tel:</strong></abbr> '+ obj.telphone+
+                                    '</address>' +
+                                    '<div class="ibox2 float-e-margins">' +
+                                        '<p>';
+                                    if(!!obj.judgeFlag){
+                                        html +='<a class="btn btn-danger btn-rounded btn-outline" href="javascript:void(0)">已评价</a>'
+                                    } else {
+                                        html +='<a class="btn btn-danger btn-rounded btn-outline" href="javascript:void(0)" onclick="saveAndTurn('+ i +', 1);return false;">待评价</a>'
+                                    }
+                                     html += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                            '<a class="btn btn-success btn-rounded" style="color:#FFF" href="javascript:void(0)" onclick="saveAndTurn('+ i +', 2);return false;">留言</a>' +
+                                        '</p>' +
+                                    '</div>' +
+                                '</div>'+
+                                '<div class="clearfix"></div>' +
+                            '</a>' +
+                            '</div>' +
+                        '</div>';
+            $(".row").append(html);
+        }
+        var list = new Array();
+        $(document).ready(function () {
+            // 先删掉暂存的信息
+            window.localStorage.removeItem("TeacherTemp");
+            ajaxCommon({
+                url: 'user/teachers?userId=' + getUserId(),
+                // url: 'user/teachers?userId=' + '402848816a6450ba016a645166430001',
+                type: 'GET'
+            }, function(obj) {
+                if(obj.code == 200){
+                    var data = obj.data;
+                    //无数据则显示空白样式
+                    if(data.length == 0){
+                        var blank = '' +
+                            '<div class="col-sm-12">' +
+                            '  <div class="middle-box text-center animated fadeInRightBig">' +
+                            '     <h3 class="font-bold">无待评价的课程</h3>' +
+                            '     <div class="error-desc">' +
+                            '您可以联系管理员添加课程' +
+                            // '     <br/><a href="#" class="btn btn-primary m-t">打开主页</a>' +
+                            '     </div>' +
+                            '  </div>' +
+                            '</div>';
+                        $(".row").append(blank);
+                    } else {
+                        for(var i in data){
+                            initHtml(data[i], i);
+                            var value = new Object();
+                            value.teacherId = data[i].teacherId;
+                            value.courseId = data[i].courseId;
+                            value.courseName = data[i].courseName;
+                            value.nikeName =  data[i].nikeName;
+                            value.description = data[i].description;
+                            value.imgUrl = data[i].imgUrl;
+                            list.push(value);
+                        }
+                        // 添加移入特效
+                        $(".contact-box2").each(function () {
+                            animationHover(this, "pulse")
+                        })
+                    }
+                }
+            }, false);
+        });
+        loginfo("包装好的\n");
+        loginfo(list);
+        function saveAndTurn(i, type){
+            window.localStorage.setItem("TeacherTemp",JSON.stringify(list[i]));
+            if(type == 1){
+                window.location.href = "judge.html";
+            } else {
+                window.location.href = "leaveMessage.html";
+            }
+        }
+    </script>
+</body>
+</html>

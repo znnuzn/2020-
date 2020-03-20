@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "name": "configs",
+      "type": "com.teacher.judge.demo.bean.Configs",
+      "sourceType": "com.teacher.judge.demo.bean.Configs"
+    }
+  ],
+  "properties": [
+    {
+      "name": "configs.msg-page-size",
+      "type": "java.lang.Integer",
+      "sourceType": "com.teacher.judge.demo.bean.Configs"
+    },
+    {
+      "name": "configs.proportion",
+      "type": "java.lang.Double",
+      "sourceType": "com.teacher.judge.demo.bean.Configs"
+    },
+    {
+      "name": "configs.time-out",
+      "type": "java.lang.Integer",
+      "sourceType": "com.teacher.judge.demo.bean.Configs"
+    }
+  ],
+  "hints": []
+}

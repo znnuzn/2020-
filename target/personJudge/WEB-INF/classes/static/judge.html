@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师评价系统</title>
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <link href="css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/plugins/steps/jquery.steps.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <link href="css/common.min.css" rel="stylesheet">
+    <link href="css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <h5>教师评价向导</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <h2 id="title-text"></h2>
+                        <p style="color: #db4f42">
+                            0是完全不符合，10是完全符合
+                        </p>
+
+                        <form id="form" action="#" class="wizard-big">
+                            <h1>课前</h1>
+                            <fieldset>
+                                <h2>教师在课前的表现</h2>
+                                <div class="row">
+                                    <div class="col-sm-8" id="beforeClass">
+                                        <!--待填充-->
+                                    </div>
+                                    <input name="validBeforeClass" type="text" style="height:0.5px;width:0px;padding:0px;margin:0px;"/>
+                                    <div class="col-sm-4">
+                                        <div class="text-center">
+                                            <div style="margin-top: 20px">
+                                                <i class="fa fa-sign-in" style="font-size: 180px;color: #e5e5e5 "></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <h1>课中</h1>
+                            <fieldset>
+                                <h2>教师在课堂时的表现</h2>
+                                <div class="row">
+                                    <div class="col-sm-8" id="inClass">
+                                        <!--待填充-->
+                                    </div>
+                                    <input name="validInClass" type="text" style="height:0.5px;width:0px;padding:0px;margin:0px;"/>
+                                    <div class="col-sm-4">
+                                        <div class="text-center">
+                                            <div style="margin-top: 20px">
+                                                <i class="fa fa-sign-in" style="font-size: 180px;color: #e5e5e5 "></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <h1>课后</h1>
+                            <fieldset>
+                                <h2>教师在课后时的表现</h2>
+                                <div class="row">
+                                    <div class="col-sm-8" id="afterClass">
+                                        <!--待填充-->
+                                    </div>
+                                    <input name="validAfterClass" type="text" style="height:0.5px;width:0px;padding:0px;margin:0px;"/>
+                                    <div class="col-sm-4">
+                                        <div class="text-center">
+                                            <div style="margin-top: 20px">
+                                                <i class="fa fa-sign-in" style="font-size: 180px;color: #e5e5e5 "></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <h1>完成</h1>
+                            <fieldset>
+                                <h2>提交须知</h2>
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        <div class="form-group">
+                                            <label>1. 评教人应秉着公平公正的原则进行评教。</label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>2. 评教不违规进行评教。</label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>3. 违反规定恶意评教，有权不通知用户而直接删除。</label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>4. 评教分数最终解释权归系统所有。</label>
+                                        </div>
+                                        <input id="acceptTerms" name="acceptTerms" type="checkbox" class="required">
+                                        <label for="acceptTerms">我理解并同意须知</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="text-center">
+                                            <div style="margin-top: 20px">
+                                                <i class="fa fa-sign-in" style="font-size: 180px;color: #e5e5e5 "></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/content.min.js?v=1.0.0"></script>
+    <script src="js/plugins/toastr/toastr.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+    <script src="js/plugins/steps/jquery.steps.min.js"></script>
+    <script src="js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="js/plugins/validate/messages_zh.min.js"></script>
+    <script>
+        toastr.options.timeOut = '30000';
+        var minHightCount = new Array();
+        function showHtml(data){
+            var parent;
+            if(data.categoryType == 'A'){
+                parent = $("#beforeClass");
+            } else if(data.categoryType == 'B'){
+                parent = $("#inClass");
+            } else {parent = $("#afterClass");}
+            var list = data.commentInfoVoList;
+            for(var i in list){
+                parent.append(getQuestionItemHtml(list[i], Number(i)));
+            }
+            minHightCount.push(list.length);
+        }
+        function resizeMinHight(index){
+            var hight = minHightCount[index] * 70 + 100;
+            // loginfo(hight);
+            $(".content.clearfix").css("min-height",hight+"px");
+        }
+        function getQuestionItemHtml(info, index){
+            var html = "";
+            html += '<div class="form-group">'+
+                        '<label>'+(index+Number(1))+'   '+info.commentName+'</label>';
+            html += '<div class="form-control" style="width: 92%">';
+                    for (var i = 1;i<=10;i++) {
+                        html += '<div class="radio radio-success radio-inline">' +
+                            '     <input type="radio"  value="'+i+'" id="'+info.commentId+'_'+i+'" name="'+info.commentId+'" >' +
+                            '     <label for="'+info.commentId+'_'+i+'"> '+i+'分 </label>';
+                        html +='</div>';
+                    }
+            html +=  '</div>'+
+                    '<input id="validRadio_'+info.commentId+'" name="validRadio_'+info.commentId+'" type="hidden"/>';
+            html +=  '</div>';
+            return html;
+        }
+        $(document).ready(function () {
+            // 判断是否有教师列表留下的信息
+            var temp = eval('(' + window.localStorage.getItem("TeacherTemp") + ')');
+            if(temp == null || !temp.courseId || !temp.teacherId){
+                // 无相关信息重新登录
+                window.parent.location.href = "login.html";
+            }
+            // 设置标题
+            $("#title-text").text(temp.nikeName+":《"+temp.courseName+"》");
+            // 获取评价题目
+            ajaxCommon({
+                url: 'comment/allComment',
+                type: 'GET',
+                async: false
+            }, function(obj) {
+                if(obj.code == 200){
+                    var data = obj.data;
+                    for(var i in data){
+                        showHtml(data[i]);
+                    }
+                }
+            }, false);
+            var subArray = new Array(minHightCount.length);
+            $.validator.setDefaults({ //取消 忽略对hidden的验证
+                ignore: [],
+            });
+            $.validator.addMethod("validRadioList", function(value, element, param) {
+                $.validator.messages["validRadioList"] = "";
+                var count = minHightCount[param[1]];
+                var checked = $("#form input:radio[name^='"+param[0]+"']:checked");
+                // 所有被选中的个数少于题目数代表漏选
+                if(checked.length < count){
+                    // 设置提示位置
+                    toastr.options.positionClass = 'toast-middle-question'+param[1];
+                    toastr.error("还剩"+(count-checked.length)+"个未选择！");
+                    return false;
+                }
+                var selected = {
+                    categoryType: param[0],
+                    judgedInfoList: []
+                };
+                // 保存选的值
+                checked.each(function(){
+                    var item = new Object();
+                    item.commentId = this.name;
+                    item.scope = Number(this.value);
+                    selected.judgedInfoList.push(item);
+                });
+                subArray[param[1]] = (selected);
+                loginfo(subArray);
+                return true;
+            });
+            $("#form").steps({
+                bodyTag: "fieldset",
+                labels: {
+                    finish: "提交评价",
+                    next: "下一步",
+                    previous: "上一步"
+                },
+                onStepChanging: function (event, currentIndex, newIndex) {
+                    loginfo("onStepChanging:event:"+event+"-currentIndex:"+currentIndex+"-newIndex:"+newIndex);
+                    if (currentIndex > newIndex) {
+                        // 重新定义min_hight
+                        resizeMinHight(newIndex);
+                        return true
+                    }
+                    var form = $(this);
+                    if (currentIndex < newIndex) {
+                        $(".body:eq(" + newIndex + ") label.error", form).remove();
+                        $(".body:eq(" + newIndex + ") .error", form).removeClass("error");
+                    }
+                    form.validate().settings.ignore = ":disabled,:hidden";
+                    if(form.valid()){
+                        // 重新定义min_hight
+                        resizeMinHight(newIndex);
+                        return true;
+                    } else {
+                        // 没过校验
+                        return false;
+                    }
+                }, onStepChanged: function (event, currentIndex, priorIndex) {
+                    loginfo("onStepChanged:event:"+event+"-currentIndex:"+currentIndex+"-priorIndex:"+priorIndex);
+                    // if (currentIndex === 2 && Number($("#age").val()) >= 18) {
+                    //     $(this).steps("next")
+                    // }
+                    // if (currentIndex === 2 && priorIndex === 3) {
+                    //     $(this).steps("previous")
+                    // }
+                }, onFinishing: function (event, currentIndex) {
+                    loginfo("onFinishing:"+currentIndex);
+                    var form = $(this);
+                    form.validate().settings.ignore = ":disabled";
+                    return form.valid()
+                }, onFinished: function (event, currentIndex) {
+                    loginfo("onFinished:"+currentIndex);
+                    var form = $(this);
+                    var allObj = {
+                        userId: getUserId(),
+                        teacherId: temp.teacherId,
+                        courseId: temp.courseId,
+                        judgedList: subArray
+                    };
+                    // 提交
+                    ajaxCommon({
+                        url: 'judge/judge',
+                        async: false,
+                        data: JSON.stringify(allObj)
+                    }, function(obj) {
+                        if(obj.code == 200){
+                            updateTodoJudgeCount(function() {
+                                window.location.href = "teachers.html";
+                            });
+                        }
+                    }, false);
+                }
+            }).validate({
+                errorPlacement: function (error, element) {
+                    element.before(error)
+                },
+                rules: {
+                    "validBeforeClass": {
+                        validRadioList: ["A",0]
+                    }
+                    ,
+                    "validInClass": {
+                        validRadioList: ["B",1]
+                    }
+                    ,
+                    "validAfterClass":{
+                        validRadioList: ["C",2]
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

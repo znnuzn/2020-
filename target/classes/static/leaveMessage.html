@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师评价系统</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="css/common.min.css" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row animated fadeInRight">
+            <div class="col-sm-4">
+                <div class="ibox float-e-margins">
+                    <div>
+                        <div class="ibox-content text-center" style="padding-bottom: 1px">
+                            <div class="m-b-sm">
+                                <img alt="image" id="info_imgUrl" class="img-circle" src="img/userImag/a1.jpg" width="200px" height="200px">
+                            </div>
+                        </div>
+                        <div class="ibox-content profile-content" style="padding-top: 1px">
+                            <h4 class="text-center"><strong id="info_name"></strong></h4>
+                            <h5><i class="fa fa-book"></i> &nbsp;&nbsp;课程</h5>
+                            <p id="info_courseName"></p>
+                            <h5><i class="fa fa-bullhorn"></i> &nbsp;&nbsp;关于我</h5>
+                            <p id="info_description"></p>
+                            <h5><i class="fa fa-envelope"></i> &nbsp;&nbsp;有什么想对我说的~</h5>
+                            <div class="chat-message-form">
+                                <div class="form-group">
+                                    <textarea class="form-control message-input" id="message" placeholder="输入消息内容，点击按钮留言~"></textarea>
+                                </div>
+                            </div>
+                            <div class="user-button" style="margin-top: 15px">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <button type="button" class="btn btn-default btn-sm btn-block" onclick="clearText();"><i class="fa fa-exclamation"></i> 清空</button>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <button type="button" class="btn btn-primary btn-sm btn-block" onclick="leaveMessage();"><i class="fa fa-pencil"></i> 留言</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>最新留言</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div>
+                            <div class="feed-activity-list">
+                            </div>
+                            <button id="more" class="btn btn-primary btn-block m" onclick="moreMsg();"><i class="fa fa-arrow-down"></i> 显示更多</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/common.js"></script>
+    <script src="js/plugins/layer/layer.min.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+    <script>
+        var temp = eval('(' + window.localStorage.getItem("TeacherTemp") + ')');
+        var pageNum = 1;
+        var likeCondition = {
+            userId: getUserId(),
+            id: 0,
+            type: ''
+        };
+        function initTeacherInfo(){
+            // 初始化页面教师信息
+            if(temp == null || !temp.courseId || !temp.teacherId){
+                // 无相关信息重新登录
+                window.parent.location.href = "login.html";
+                return;
+            }
+            $("#info_name").text(temp.nikeName);
+            $("#info_imgUrl").attr('src',temp.imgUrl);
+            $("#info_courseName").text("《"+temp.courseName+"》");
+            $("#info_description").text(temp.description);
+        }
+        function clearText(){
+            $("#message").val('');
+        }
+        function leaveMessage(){
+            loginfo("开始留言");
+            if(!$("#message").val()){
+                commonAlert("请输入留言内容~");
+                return;
+            }
+            var condition = {
+                teacherId: temp.teacherId,
+                userId: getUserId(),
+                courseId: temp.courseId,
+                content: $("#message").val(),
+                messageType: 0
+            };
+            postMessage(condition,"message/message", function(obj) {
+                commonAlert("(∩_∩) 留言成功~");
+                clearText();
+                // 更新页面
+                $(".feed-activity-list").prepend(getMessageHtml(obj));
+                $("#blank").hide();
+                hideAll();
+                bindEle();
+            });
+        }
+        // 展示评论内容
+        function getDialog(data){
+            var html = '<div id="dialog_'+data.id+'">' +
+                '<div class="chat-message-form">' +
+                    '<input type="hidden" id="parentUserId_'+data.id+'" value="'+data.fromId+'">'+
+                '    <textarea class="form-control message-input" id="replyContent_'+data.id+'" placeholder="输入消息内容，点击按钮留言~"></textarea>' +
+                '</div>' +
+                '<div class="pull-right" style="margin-top: 15px">' +
+                '    <a class="btn btn-xs btn-white" id="reply_'+data.id+'"><i class="fa fa-share"></i> 发表回复 </a>' +
+                '</div>' +
+                '</div>';
+            return html;
+        }
+        function getButton(data){
+            var html = '';
+            html += '<div class="pull-right">';
+            if(data.likedType == '1'){
+                html +='     <a class="btn btn-xs btn-primary" id="agree_'+data.id+'"><i class="fa fa-thumbs-up"></i> 赞 <em>'+data.agree+'</em></a>' +
+                    '        <a class="btn btn-xs btn-white" id="disagree_'+data.id+'"><i class="fa fa-thumbs-down"></i> 踩 <em>'+data.disagree+'</em></a>';
+            } else if(data.likedType == '0' || !data.likedType){
+                html +='     <a class="btn btn-xs btn-white" id="agree_'+data.id+'"><i class="fa fa-thumbs-up"></i> 赞 <em>'+data.agree+'</em></a>' +
+                    '        <a class="btn btn-xs btn-white" id="disagree_'+data.id+'"><i class="fa fa-thumbs-down"></i> 踩 <em>'+data.disagree+'</em></a>';
+            } else if(data.likedType == '-1'){
+                html +='     <a class="btn btn-xs btn-white" id="agree_'+data.id+'"><i class="fa fa-thumbs-up"></i> 赞 <em>'+data.agree+'</em></a>' +
+                    '        <a class="btn btn-xs btn-primary" id="disagree_'+data.id+'"><i class="fa fa-thumbs-down"></i> 踩 <em>'+data.disagree+'</em></a>';
+            }
+            html += '            <a class="btn btn-xs btn-white" id="leaveMsg_'+data.id+'" ><i class="fa fa-pencil"></i> 回复</a>'+
+                    '</div>';
+            return html;
+        }
+        function getMessageHtml(data){
+            var html = "";
+            // 给教师的留言
+            if(data.messageType == '0'){
+                html += '<div class="feed-element msg-element">' +
+                    '    <a href="#" class="pull-left">' +
+                    '        <img alt="image" class="img-circle" src="'+data.fromImgUrl+'">' +
+                    '    </a>' +
+                    '    <div class="media-body ">' +
+                    '        <small class="pull-right text-navy">'+data.personType+'</small>' +
+                    '        <strong>'+data.fromName+'</strong>' +
+                    '        <br>' +
+                    '        <small class="text-muted">'+data.date+' 留言</small>' +
+                    '        <p class="msg-content">'+data.content+'</p>';
+                        html += getButton(data);
+                        html += getDialog(data);
+                html +='</div>' +
+                    '</div>';
+
+            } else {
+                html += '<div class="feed-element msg-element">' +
+                    '    <a href="#" class="pull-left">' +
+                    '        <img alt="image" class="img-circle" src="'+data.fromImgUrl+'">' +
+                    '    </a>' +
+                    '    <div class="media-body ">' +
+                    '        <small class="pull-right text-navy">'+data.personType+'</small>' +
+                    '        <strong>'+data.fromName+'</strong> 回复了 <strong>'+data.toName+'</strong>' +
+                    '        <br>' +
+                    '        <small class="text-muted">'+data.date+' 留言</small>' +
+                    '        <p class="msg-content">'+data.content+'</p>' +
+                    '        <div class="well">'+data.parentContent+'</div>';
+                            html += getButton(data);
+                            html += getDialog(data);
+                    html +='</div>' +
+                    '</div>';
+            }
+            return html;
+        }
+        function initMsg(num){
+            // 初始只显示第一页
+            ajaxCommon({
+                url: 'message/messages?teacherId='+temp.teacherId+'&pageNum='+num+'&userId='+getUserId()+'&courseId='+temp.courseId,
+                type: 'GET',
+                async: false
+            }, function(obj) {
+                if(obj.code == 200){
+                    var data = obj.data;
+                    if(!data){
+                        if(num == 1){
+                            var blank = '' +
+                                '<div id="blank">' +
+                                '   <div class="middle-box text-center animated fadeInRightBig" style="margin-bottom: 184px;height: 135px">' +
+                                '        <h3 class="font-bold">还没有人留言哦~</h3>' +
+                                '         <div class="error-desc">(≧∇≦)ﾉ 做第一个留言的人吧！</div>' +
+                                '    </div>' +
+                                '</div>';
+                            $(".feed-activity-list").append(blank);
+                        } else {
+                            commonAlert("没有了哦~");
+                        }
+                        $("#more").hide();
+                        return;
+                    }
+                    for(var i in data){
+                        $(".feed-activity-list").append(getMessageHtml(data[i]));
+                    }
+                }
+            }, false);
+        }
+        function hideAll(){
+            $("div[id^='dialog_']").each(function(){
+                $(this).hide();
+            });
+        }
+        function bindEle(){
+            // 绑定点击事件
+            $("a[id^='leaveMsg_']").each(function(){
+                $(this).unbind("click").click(function(){
+                    var id = this.id.split("_")[1];
+                    var obj = $("#dialog_"+id);
+                    if(obj.is(":hidden")){
+                        $(this).removeClass("btn-white");
+                    } else {
+                        $(this).addClass("btn-white");
+                    }
+                    $(this).toggleClass("btn-primary");
+                    obj.toggle(300);
+                })
+            });
+            $("a[id^='reply_']").each(function(){
+                $(this).unbind("click").click(function(){
+                    var id = this.id.split("_")[1];
+                    var content = $("#replyContent_"+id);
+                    if(!content.val()){
+                        commonAlert("请输入回复内容~");
+                        return;
+                    }
+
+                    var condition = {
+                        teacherId: temp.teacherId,
+                        courseId: temp.courseId,
+                        userId: getUserId(),
+                        content: content.val(),
+                        messageType: 1,
+                        toId: $("#parentUserId_"+id).val(),
+                        parentId: id
+                    }
+                    console.log(condition);
+                    postMessage(condition,"message/message", function(obj) {
+                        // 更新页面
+                        $(".feed-activity-list").prepend(getMessageHtml(obj));
+                        // 把所有回复按钮的颜色变回来
+                        $("a[id^='leaveMsg_']").each(function(){
+                            if($(this).hasClass('btn-primary')){
+                                $(this).removeClass("btn-primary");
+                                $(this).addClass("btn-white");
+                            }
+                        });
+                        hideAll();
+                        bindEle();
+                    });
+                })
+            });
+            $("a[id^='agree_']").each(function(){
+                $(this).unbind("click").click(function(){
+                    var id = this.id.split("_")[1];
+                    likeCondition.id = parseInt(id);
+                    var numObj = $($(this).children("em").get(0));
+                    // 如果要赞
+                    if($(this).hasClass('btn-white')){
+                        // 要赞 && 已踩
+                        if($("#disagree_"+id).hasClass("btn-primary")){
+                            commonAlert("你已经踩过了！");
+                            return;
+                        }
+                        // 要赞
+                        likeCondition.type = '1';
+                        postMessage(likeCondition,"message/likeOrDis", function(obj) {
+                            $("#agree_"+id).removeClass("btn-white");
+                            numObj.text(parseInt(numObj.text()) + 1);
+                        });
+                    } else {
+                        // 要取消赞
+                        likeCondition.type = '2';
+                        postMessage(likeCondition,"message/likeOrDis", function(obj) {
+                            $("#agree_"+id).addClass("btn-white");
+                            numObj.text(parseInt(numObj.text()) - 1);
+                        });
+                    }
+                    $(this).toggleClass("btn-primary");
+                })
+            });
+            $("a[id^='disagree_']").each(function(){
+                $(this).unbind("click").click(function(){
+                    var id = this.id.split("_")[1];
+                    likeCondition.id = parseInt(id);
+                    var numObj = $($(this).children("em").get(0));
+                    if($(this).hasClass('btn-white')){
+                        // 要踩 && 已赞
+                        if($("#agree_"+id).hasClass("btn-primary")){
+                            commonAlert("你已经赞过了！");
+                            return;
+                        }
+                        // 要踩
+                        likeCondition.type = '3';
+                        postMessage(likeCondition,"message/likeOrDis", function(obj) {
+                            $("#disagree_"+id).removeClass("btn-white");
+                            numObj.text(parseInt(numObj.text()) + 1);
+                        });
+                    } else {
+                        // 要取消踩
+                        likeCondition.type = '4';
+                        postMessage(likeCondition,"message/likeOrDis", function(obj) {
+                            $("#disagree_"+id).addClass("btn-white");
+                            numObj.text(parseInt(numObj.text()) - 1);
+                        });
+                    }
+                    $(this).toggleClass("btn-primary");
+                })
+            });
+        }
+        function moreMsg(){
+            initMsg(++pageNum);
+            hideAll();
+            bindEle();
+        }
+
+        $(document).ready(function () {
+            initTeacherInfo();
+            initMsg(pageNum);
+            hideAll();
+            bindEle();
+        });
+    </script>
+</body>
+</html>
